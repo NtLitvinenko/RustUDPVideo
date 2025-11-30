@@ -1,26 +1,33 @@
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
 use std::net::UdpSocket;
-use nokhwa::{
-    Camera,
-    pixel_format::RgbFormat,
-    utils::{RequestedFormat, RequestedFormatType, CameraIndex, Resolution, CameraFormat, FrameFormat},
-};
+use nokhwa::{Camera,
+             pixel_format::RgbFormat,
+             utils::{RequestedFormat, RequestedFormatType, CameraIndex, Resolution, CameraFormat, FrameFormat, ApiBackend, CameraInfo},
+             query};
 use std::time::{Duration, Instant};
 
 const MTU_SIZE: usize = 1400;
 const CHUNK_SIZE: usize = MTU_SIZE - 8; // header size
 
 fn capture_loop(sender: Sender<Vec<u8>>, fps_target: u32) {
-    let format = CameraFormat::new(
-        Resolution { width_x: 640, height_y: 480 },
-        FrameFormat::RAWRGB,
-        24,
-    );
     let index = CameraIndex::Index(0);
+    let devices: Vec<CameraInfo> = match query(ApiBackend::MediaFoundation) {
+        Ok(devs) => devs,
+        Err(e) => {
+            eprintln!("Camera query error: {:?}", e);
+            return;
+        }
+    };
+
+    if devices.is_empty() {
+        eprintln!("No cameras found");
+        return;
+    }
+
+    let camera_index = devices[0].index();
     let requested = RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
-    let mut camera = Camera::new(index, requested).unwrap();
-    camera.set_camera_format(format);
+    let mut camera = Camera::new(camera_index.clone(), requested).unwrap();
 
     // Optional: set camera properties for speed
     // camera.set_frame_rate(fps_target as f32).unwrap();

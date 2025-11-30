@@ -2,8 +2,10 @@ use std::net::UdpSocket;
 use std::collections::HashMap;
 use image::io::Reader as ImageReader;
 use image::ImageFormat;
+use std::time::{Duration, SystemTime};
+use std::thread::sleep;
 
-const BUFFER_SIZE: usize = 256000;
+const BUFFER_SIZE: usize = 1*1024*12; // 1byte * 1024 kB * 12 mB
 
 struct FrameBuffer {
     total_chunks: u32,
@@ -11,14 +13,14 @@ struct FrameBuffer {
     chunks_count: usize,
 }
 
-fn display_image(data: &Vec<u8>, frame_: u64) {
+async fn display_image(data: &Vec<u8>, frame_: u64) {
     // Try to decode image
     match ImageReader::new(std::io::Cursor::new(data)).with_guessed_format() {
         Ok(reader) => {
             match reader.decode() {
                 Ok(img) => {
                     // Save image with unique filename
-                    let filename = format!("D:/Projects/VSCodeProjects/IluhasProject/target/debug/frames/frame_{}.png", frame_);
+                    let filename = format!("./frames/frame_{}.png", frame_);
                     // Ensure the directory exists
                     std::fs::create_dir_all("frames").unwrap();
                     img.save(&filename).unwrap();
@@ -35,12 +37,13 @@ fn display_image(data: &Vec<u8>, frame_: u64) {
     }
 }
 
-fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
     let socket = UdpSocket::bind("127.0.0.1:11856")?;
     let mut buffer = [0u8; BUFFER_SIZE];
     let mut frames: HashMap<u32, FrameBuffer> = HashMap::new();
     let mut frame_: u64 = 0;
-
+    let now = SystemTime::now();
     loop {
         let (len, src) = socket.recv_from(&mut buffer)?;
         if len < 8 {
@@ -72,9 +75,9 @@ fn main() -> std::io::Result<()> {
                     eprintln!("Missing chunk {} in frame", idx);
                 }
             }
-            println!("Frame assembled, size: {}", full_data.len());
             frame_ += 1;
-            display_image(&full_data, frame_);
+            println!("Frame assembled, size: {}, frame #{}, FPS: {}", full_data.len(), frame_, ((frame_*1000) as u128)/now.elapsed().unwrap().as_millis());
+            display_image(&full_data, frame_).await;
             frames.remove(&total_chunks);
         }
     }
