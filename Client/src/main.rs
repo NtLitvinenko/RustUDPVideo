@@ -9,7 +9,7 @@ use std::{collections::HashMap, net::SocketAddr, time::{Duration, Instant}};
 use tokio::{net::UdpSocket, sync::broadcast};
 
 const UDP_BIND: &str = "192.168.0.102:11856";
-const HTTP_BIND: &str = "192.168.0.102:3000";
+const HTTP_BIND: &str = "127.0.0.1:3000";
 
 const UDP_HDR: usize = 12; // frame_id(4) + total(4) + idx(4)
 

@@ -1,0 +1,14 @@
+D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\deps\serde-34e56edc0e7cbfca.d: C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\build\serde-c672140bdea3802d\out/private.rs
+
+D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\deps\libserde-34e56edc0e7cbfca.rlib: C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\build\serde-c672140bdea3802d\out/private.rs
+
+D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\deps\libserde-34e56edc0e7cbfca.rmeta: C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\build\serde-c672140bdea3802d\out/private.rs
+
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs:
+D:\Projects\VSCodeProjects\rustudpvideo\client\target\release\build\serde-c672140bdea3802d\out/private.rs:
+
+# env-dep:OUT_DIR=D:\\Projects\\VSCodeProjects\\rustudpvideo\\client\\target\\release\\build\\serde-c672140bdea3802d\\out
