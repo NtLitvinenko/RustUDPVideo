@@ -1,2 +1,9 @@
-Client/target
-Server/target
+Client/target/**
+Server/target/**
+
+!Client/target/release/
+!Client/target/release/**
+
+
+!Server/target/release/
+!Server/target/release/**

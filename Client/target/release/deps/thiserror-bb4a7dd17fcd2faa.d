@@ -1,0 +1,14 @@
+D:\Projects\VSCodeProjects\udpClient\target\release\deps\thiserror-bb4a7dd17fcd2faa.d: C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\lib.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\aserror.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\display.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\var.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\private.rs D:\Projects\VSCodeProjects\udpClient\target\release\build\thiserror-eabd374827ae5f98\out/private.rs
+
+D:\Projects\VSCodeProjects\udpClient\target\release\deps\libthiserror-bb4a7dd17fcd2faa.rlib: C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\lib.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\aserror.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\display.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\var.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\private.rs D:\Projects\VSCodeProjects\udpClient\target\release\build\thiserror-eabd374827ae5f98\out/private.rs
+
+D:\Projects\VSCodeProjects\udpClient\target\release\deps\libthiserror-bb4a7dd17fcd2faa.rmeta: C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\lib.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\aserror.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\display.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\var.rs C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\private.rs D:\Projects\VSCodeProjects\udpClient\target\release\build\thiserror-eabd374827ae5f98\out/private.rs
+
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\lib.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\aserror.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\display.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\var.rs:
+C:\Users\kiril\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-2.0.17\src\private.rs:
+D:\Projects\VSCodeProjects\udpClient\target\release\build\thiserror-eabd374827ae5f98\out/private.rs:
+
+# env-dep:OUT_DIR=D:\\Projects\\VSCodeProjects\\udpClient\\target\\release\\build\\thiserror-eabd374827ae5f98\\out
