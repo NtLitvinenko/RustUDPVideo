@@ -1,121 +1,89 @@
 use std::net::UdpSocket;
-use std::collections::HashMap;
-use image::io::Reader as ImageReader;
-use nokhwa::{buffer::Buffer,
-            pixel_format::RgbFormat,
-            utils::FrameFormat, utils::Resolution};
+use nokhwa::{
+    Camera,
+    pixel_format::RgbFormat,
+    utils::{RequestedFormat, RequestedFormatType, FrameFormat, ApiBackend, CameraInfo},
+    query,
+    Buffer,
+};
 
-const FRAME_HEADER_SIZE: usize = 4 + 4 + 4;
-const BUFFER_SIZE: usize = 1*1024*12; // 1byte * 1024 kB * 12 mB
+const FRAME_HDR: usize = 12; // width(4) + height(4) + type(4)
 
-fn frame_format_from_code(code: u32) -> FrameFormat {
-    match code {
-        0 => FrameFormat::MJPEG,
-        1 => FrameFormat::YUYV,
-        2 => FrameFormat::NV12,
-        3 => FrameFormat::GRAY,
-        4 => FrameFormat::RAWRGB,
-        _ => FrameFormat::RAWRGB, // fallback, можешь сделать Result вместо этого
+// UDP packet header: frame_id(4) + total(4) + idx(4)
+const UDP_HDR: usize = 12;
+
+const MTU: usize = 1400;
+const CHUNK_SIZE: usize = MTU - UDP_HDR;
+
+fn frame_format_to_code(fmt: FrameFormat) -> u32 {
+    match fmt {
+        FrameFormat::MJPEG  => 0,
+        FrameFormat::YUYV   => 1,
+        FrameFormat::NV12   => 2,
+        FrameFormat::GRAY   => 3,
+        FrameFormat::RAWRGB => 4,
+        FrameFormat::RAWBGR => 5,
     }
 }
 
-fn pack_resolution(width: u32, height: u32) -> u32 {
-    (width << 16) | (height & 0xFFFF)
+fn frame_encode(buffer: &Buffer) -> Vec<u8> {
+    let res = buffer.resolution();
+    let width = res.width() as u32;
+    let height = res.height() as u32;
+    let fmt = buffer.source_frame_format();
+    let image_type = frame_format_to_code(fmt);
+
+    let raw: &[u8] = buffer.buffer().as_ref();
+
+    let mut out = Vec::with_capacity(FRAME_HDR + raw.len());
+    out.extend_from_slice(&width.to_be_bytes());
+    out.extend_from_slice(&height.to_be_bytes());
+    out.extend_from_slice(&image_type.to_be_bytes());
+    out.extend_from_slice(raw);
+    out
 }
 
-fn unpack_resolution(res_packed: u32) -> (u32, u32) {
-    let width = res_packed >> 16;
-    let height = res_packed & 0xFFFF;
-    (width, height)
-}
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // выбираем камеру
+    let devices: Vec<CameraInfo> = query(ApiBackend::MediaFoundation).unwrap_or_default();
+    if devices.is_empty() {
+        eprintln!("No cameras found");
+        return Ok(());
+    }
 
-struct FrameBuffer {
-    total_chunks: u32,
-    received_chunks: HashMap<usize, Vec<u8>>,
-    chunks_count: usize,
-}
+    let camera_index = devices[0].index().clone();
 
-pub fn frame_decode(buf: &[u8], imagebuf: &mut Vec<u8>) -> (u32, u32) {
-    assert!(buf.len() >= FRAME_HEADER_SIZE, "frame too small");
+    // просим RGB (обычно это RAWRGB)
+    let requested = RequestedFormat::new::<RgbFormat>(RequestedFormatType::AbsoluteHighestFrameRate);
+    let mut camera = Camera::new(camera_index, requested)?;
 
-    let width = u32::from_be_bytes(buf[0..4].try_into().unwrap());
-    let height = u32::from_be_bytes(buf[4..8].try_into().unwrap());
-    let image_type = u32::from_be_bytes(buf[8..12].try_into().unwrap());
+    // на некоторых версиях nokhwa нужно явно открыть поток:
+    camera.open_stream()?;
 
-    imagebuf.clear();
-    imagebuf.extend_from_slice(&buf[FRAME_HEADER_SIZE..]);
+    let socket = UdpSocket::bind("0.0.0.0:0")?;
+    let target = "192.168.0.102:11856";
 
-    let resolution_packed = pack_resolution(width, height);
+    let mut frame_id: u32 = 0;
 
-    (resolution_packed, image_type)
-}
-
-#[tokio::main]
-async fn main() -> std::io::Result<()> {
-    let socket = UdpSocket::bind("127.0.0.1:11856")?;
-    let mut buffUser = [0u8; BUFFER_SIZE];
-    let mut frames: HashMap<u32, FrameBuffer> = HashMap::new();
-    let mut frame_: u64 = 0;
     loop {
-        let (len, src) = socket.recv_from(&mut buffUser)?;
-        if len < 8 {
-            continue; // ignore invalid
+        let frame_buf = camera.frame()?;
+        let encoded = frame_encode(&frame_buf);
+
+        let total_chunks = ((encoded.len() + CHUNK_SIZE - 1) / CHUNK_SIZE) as u32;
+
+        for idx in 0..total_chunks {
+            let start = (idx as usize) * CHUNK_SIZE;
+            let end = std::cmp::min(start + CHUNK_SIZE, encoded.len());
+
+            let mut packet = Vec::with_capacity(UDP_HDR + (end - start));
+            packet.extend_from_slice(&frame_id.to_be_bytes());
+            packet.extend_from_slice(&total_chunks.to_be_bytes());
+            packet.extend_from_slice(&idx.to_be_bytes());
+            packet.extend_from_slice(&encoded[start..end]);
+
+            socket.send_to(&packet, target)?;
         }
 
-        // Parse header
-        let total_chunks = u32::from_be_bytes([buffUser[0], buffUser[1], buffUser[2], buffUser[3]]);
-        let chunk_idx = u32::from_be_bytes([buffUser[4], buffUser[5], buffUser[6], buffUser[7]]);
-        let data_chunk = &buffUser[8..len];
-
-        // Get existing frame buffer or create new
-        let frame_entry = frames.entry(total_chunks).or_insert_with(|| FrameBuffer {
-            total_chunks,
-            received_chunks: HashMap::new(),
-            chunks_count: total_chunks as usize,
-        });
-
-        // Insert chunk
-        frame_entry.received_chunks.insert(chunk_idx as usize, data_chunk.to_vec());
-
-        // Check if frame is complete
-        if frame_entry.received_chunks.len() == frame_entry.chunks_count {
-            let mut full_data = Vec::new();
-            for idx in 0..frame_entry.chunks_count {
-                if let Some(chunk) = frame_entry.received_chunks.get(&idx) {
-                    full_data.extend_from_slice(chunk);
-                } else {
-                    eprintln!("Missing chunk {} in frame", idx);
-                }
-            }
-
-            frame_ += 1;
-
-            // --- расшифровываем наш заголовок ---
-            let mut imagebuf: Vec<u8> = Vec::new();
-            let (res_packed, image_type) = frame_decode(&full_data, &mut imagebuf);
-            let (width, height) = unpack_resolution(res_packed);
-            let frame_format = frame_format_from_code(image_type);
-
-            let resolution = Resolution::new(width, height);
-
-            // Собираем Buffer как ты и хотел
-            let buf = Buffer::new(resolution, &imagebuf, frame_format);
-
-            // дальше можешь:
-            // - либо декодировать через buf.decode_image::<RgbFormat>()
-            // - либо передать buf в свою систему
-            // тут я условно оставлю твой display_image, но ему уже логичнее скормить декодированную картинку
-            // display_image(&imagebuf, frame_).await;
-            //display_image(&rgb_img, frame_).await;
-            if frame_ % 60 == 0 {
-                let path = format!("./frames/frame-{}.png", frame_); // см. пункт 2
-                let mut rgb_img = buf.decode_image::<RgbFormat>().unwrap();
-                if let Err(e) = rgb_img.save(&path) {
-                    eprintln!("failed to save frame {}: {}", frame_, e);
-                }
-            }
-
-            frames.remove(&total_chunks);
-        }
+        frame_id = frame_id.wrapping_add(1);
     }
 }
